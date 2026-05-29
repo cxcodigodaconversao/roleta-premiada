@@ -685,7 +685,6 @@ let spinning = false;
 let currentAngle = 0;
 let saleData = null;
 let alreadySpun = false;
-let isFirstSpin = true; // primeira rodada sempre cai em Comissão Dobrada
 
 // ─── CANVAS ───────────────────────────────────
 const SIZE = 500;
@@ -787,14 +786,7 @@ spinBtn.onclick = () => {
   resultPrize.textContent = '...';
 
   const segs = getSegments();
-  // Primeira rodada sempre cai em Comissão Dobrada (para demonstração)
-  let chosen;
-  if (isFirstSpin) {
-    chosen = segs.find(s => s.label.includes('Dobrada')) || pickPrize(segs, false);
-    isFirstSpin = false;
-  } else {
-    chosen = pickPrize(segs, saleData ? saleData.blockDouble : false);
-  }
+  const chosen = pickPrize(segs, saleData ? saleData.blockDouble : false);
 
   const targetMid = (chosen.startAngle + chosen.endAngle) / 2;
   const extraSpins = (7 + Math.floor(Math.random()*5)) * 2 * Math.PI;
