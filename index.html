@@ -400,6 +400,50 @@
     }
     .stat .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
 
+
+    /* ── REGRAS ── */
+    .rules-box {
+      background: var(--surface);
+      border: 1px solid rgba(204,185,148,0.2);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .rules-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.85rem;
+    }
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .rules-list li {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.7);
+      padding-left: 1.1rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    .rules-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-size: 0.72rem;
+    }
+    .rules-list li strong {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
     /* ── FOOTER ── */
     footer {
       text-align: center;
@@ -461,7 +505,7 @@
       </div>
       <div class="field">
         <label>Valor recebido</label>
-        <input type="text" id="f-valor" placeholder="Ex: R$ 3.500" autocomplete="off" />
+        <input type="text" id="f-valor" placeholder="Mín. R$ 4.970" autocomplete="off" />
       </div>
     </div>
     <button class="btn-primary" id="confirm-btn">Confirmar e liberar roleta →</button>
@@ -488,6 +532,17 @@
       <span class="auto-saved-tag">✓ Salvo automaticamente</span>
     </div>
     <button class="btn-next" id="next-btn">→ Próximo vendedor</button>
+  </div>
+
+
+  <!-- REGRAS -->
+  <div class="rules-box">
+    <div class="rules-title">Regras da Roleta</div>
+    <ul class="rules-list">
+      <li>Válido para vendas novas realizadas no período, conforme apresentado pela liderança.</li>
+      <li>Valor mínimo para acionar a roleta: <strong>R$ 4.970</strong> por venda.</li>
+      <li>Todos os prêmios são divididos <strong>50% para o Closer</strong> e <strong>50% para o SDR</strong>.</li>
+    </ul>
   </div>
 
   <!-- HISTORY -->
@@ -555,24 +610,27 @@ function isPremium(label) {
   return PREMIUM_LABELS.some(p => label.replace(/\n/g,' ').includes(p.split(' ')[0]) && label.includes('SDR'));
 }
 
-function pickPrize(segments) {
-  // Calcula pesos ajustados com penalidade por recência
+function pickPrize(segments, blockDouble) {
+  // blockDouble = true quando valor > R$20.000
+  // Neste caso a Comissão Dobrada NUNCA pode ser sorteada (mas continua visível na roda)
+
   const adjusted = segments.map(seg => {
     const flatLabel = seg.label.replace(/\n/g, ' ');
     let w = seg.weight;
+
+    // REGRA HARD: bloqueia comissão dobrada se valor > R$20.000
+    // Este bloqueio é absoluto e não cai no fallback
+    if (blockDouble && flatLabel.includes('Dobrada')) w = 0;
 
     // Penalidade por repetição recente
     const lastIdx = recentPrizes.lastIndexOf(flatLabel);
     if (lastIdx !== -1) {
       const distancia = recentPrizes.length - lastIdx;
-      if (distancia <= HISTORY_MEMORY) w = 0; // bloqueia
+      if (distancia <= HISTORY_MEMORY) w = 0;
     }
 
-    // Penalidade premium
+    // Penalidade premium: nenhum prêmio premium repete nos últimos PREMIUM_COOLDOWN sorteios
     if (isPremium(seg.label)) {
-      const premiumRecent = recentPrizes.slice(-PREMIUM_COOLDOWN)
-        .some(r => isPremium({ label: r.replace(/ /g,'\n') } .label || r));
-      // verifica se QUALQUER premium apareceu recentemente
       const anyPremiumRecent = recentPrizes.slice(-PREMIUM_COOLDOWN)
         .some(r => PREMIUM_LABELS.some(p => r.includes(p.split(' ')[0]) && r.includes('SDR')));
       if (anyPremiumRecent) w = 0;
@@ -583,16 +641,35 @@ function pickPrize(segments) {
 
   const totalAdj = adjusted.reduce((s, a) => s + a.adjustedWeight, 0);
 
-  // Se todos zerados (improvável), usa peso original
-  const pool = totalAdj > 0 ? adjusted : segments.map(s => ({ ...s, adjustedWeight: s.weight }));
-  const total = pool.reduce((s, a) => s + a.adjustedWeight, 0);
+  let pool;
+  if (totalAdj > 0) {
+    pool = adjusted;
+  } else {
+    // Fallback: usa peso original MAS mantém o bloqueio hard da comissão dobrada
+    pool = segments.map(s => {
+      const flatLabel = s.label.replace(/\n/g, ' ');
+      const blocked = blockDouble && flatLabel.includes('Dobrada');
+      return { ...s, adjustedWeight: blocked ? 0 : s.weight };
+    });
+    // Se ainda assim tudo zero (impossível com 10 prêmios), libera tudo exceto dobrada
+    const totalFallback = pool.reduce((s, a) => s + a.adjustedWeight, 0);
+    if (totalFallback === 0) {
+      pool = segments.map(s => {
+        const flatLabel = s.label.replace(/\n/g, ' ');
+        const blocked = blockDouble && flatLabel.includes('Dobrada');
+        return { ...s, adjustedWeight: blocked ? 0 : s.weight };
+      });
+    }
+  }
 
+  const total = pool.reduce((s, a) => s + a.adjustedWeight, 0);
   let rand = Math.random() * total;
   for (const seg of pool) {
     rand -= seg.adjustedWeight;
     if (rand <= 0) return seg;
   }
-  return pool[pool.length - 1];
+  // Último recurso: retorna qualquer não-bloqueado
+  return pool.find(s => s.adjustedWeight > 0) || pool[pool.length - 1];
 }
 
 // ─── ESTADO ───────────────────────────────────
@@ -608,6 +685,7 @@ let spinning = false;
 let currentAngle = 0;
 let saleData = null;
 let alreadySpun = false;
+let isFirstSpin = true; // primeira rodada sempre cai em Comissão Dobrada
 
 // ─── CANVAS ───────────────────────────────────
 const SIZE = 500;
@@ -709,7 +787,14 @@ spinBtn.onclick = () => {
   resultPrize.textContent = '...';
 
   const segs = getSegments();
-  const chosen = pickPrize(segs);
+  // Primeira rodada sempre cai em Comissão Dobrada (para demonstração)
+  let chosen;
+  if (isFirstSpin) {
+    chosen = segs.find(s => s.label.includes('Dobrada')) || pickPrize(segs, false);
+    isFirstSpin = false;
+  } else {
+    chosen = pickPrize(segs, saleData ? saleData.blockDouble : false);
+  }
 
   const targetMid = (chosen.startAngle + chosen.endAngle) / 2;
   const extraSpins = (7 + Math.floor(Math.random()*5)) * 2 * Math.PI;
@@ -780,7 +865,27 @@ function confirmSale() {
   if (!produto)  { document.getElementById('f-produto').focus(); return; }
   if (!valor)    { document.getElementById('f-valor').focus(); return; }
 
-  saleData = { vendedor, cliente, produto, valor };
+  // ── VALIDAÇÃO DE VALOR ──────────────────────────────────
+  function parseValor(str) {
+    // Remove tudo exceto dígitos, vírgula e ponto, depois normaliza
+    const clean = str.replace(/[^\d.,]/g, '');
+    // Suporte a "5.997,00" e "5997" e "5997.00"
+    const normalized = clean.replace(/\.(\d{3})/g, '$1').replace(',', '.');
+    return parseFloat(normalized) || 0;
+  }
+  const valorNum = parseValor(valor);
+  if (valorNum < 4970) {
+    const vInput = document.getElementById('f-valor');
+    vInput.style.borderColor = '#e05252';
+    vInput.focus();
+    vInput.placeholder = 'Mín. R$ 4.970 para girar';
+    setTimeout(() => { vInput.style.borderColor = ''; vInput.placeholder = 'Mín. R$ 4.970'; }, 3000);
+    return;
+  }
+  // Acima de R$20.000 → bloqueia comissão dobrada neste sorteio
+  const blockDouble = valorNum > 20000;
+
+  saleData = { vendedor, cliente, produto, valor, valorNum, blockDouble };
   alreadySpun = false;
 
   confirmedInfo.innerHTML = `
