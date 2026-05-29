@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roleta de Premiações — Comercial 10X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d121c;
+      --surface:   #131929;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --border2:   rgba(255,255,255,0.14);
+      --gold:      #ccb994;
+      --gold2:     #b8a07a;
+      --green:     #3ecf8e;
+      --green-bg:  rgba(62,207,142,0.1);
+      --green-bd:  rgba(62,207,142,0.3);
+      --red:       #e05252;
+      --text:      #ffffff;
+      --muted:     rgba(255,255,255,0.55);
+      --muted2:    rgba(255,255,255,0.28);
+      --radius:    12px;
+      --radius-lg: 18px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      text-align: center;
+      padding: 3rem 1.5rem 1.5rem;
+      position: relative;
+    }
+    .page-header::after {
+      content: '';
+      display: block;
+      width: 60px; height: 2px;
+      background: var(--gold);
+      margin: 1rem auto 0;
+    }
+    .page-header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .page-header h1 span { color: var(--gold); }
+    .page-header p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    /* ── STEP INDICATOR ── */
+    .steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+    .step {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--muted2);
+      transition: color 0.3s;
+    }
+    .step .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--muted);
+      background: var(--surface);
+      transition: all 0.3s;
+    }
+    .step-line {
+      width: 36px; height: 1px;
+      background: var(--border2); margin: 0 4px;
+    }
+    .step.active { color: var(--gold); }
+    .step.active .dot { border-color: var(--gold); background: var(--gold); color: #000; }
+    .step.done { color: var(--green); }
+    .step.done .dot { border-color: var(--green); background: var(--green); color: #000; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
+    }
+
+    /* ── FORM ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .field input {
+      height: 42px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 0 14px;
+      font-size: 0.92rem;
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .field input::placeholder { color: var(--muted2); }
+    .field input:focus { border-color: var(--gold); }
+    .btn-primary {
+      margin-top: 14px;
+      width: 100%;
+      height: 46px;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #f7d060; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* ── CONFIRMED CARD ── */
+    .confirmed-card {
+      display: none;
+      background: var(--green-bg);
+      border: 1px solid var(--green-bd);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .confirmed-card .ctitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+    .confirmed-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 20px;
+    }
+    .ci { font-size: 0.85rem; color: rgba(62,207,142,0.85); }
+    .ci .lbl { font-size: 0.68rem; color: rgba(62,207,142,0.5); display: block; margin-bottom: 1px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* ── WHEEL AREA ── */
+    .wheel-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .wheel-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #roulette-canvas { display: block; max-width: 100%; }
+    .pointer-svg {
+      position: absolute;
+      top: -10px;
+      filter: drop-shadow(0 2px 6px rgba(224,82,82,0.5));
+      z-index: 10;
+    }
+    .center-btn {
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2.5px solid var(--border2);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      z-index: 20;
+    }
+    .center-btn:hover:not(:disabled) {
+      background: var(--surface);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .center-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .center-btn.spinning { border-color: var(--gold); color: var(--gold); }
+
+    /* ── RESULT ── */
+    .result-banner {
+      width: 100%;
+      max-width: 520px;
+      margin-top: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      min-height: 80px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: border-color 0.4s, background 0.4s;
+    }
+    .result-banner.saved {
+      background: var(--green-bg);
+      border-color: var(--green-bd);
+    }
+    .result-lbl {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .result-banner.saved .result-lbl { color: rgba(62,207,142,0.6); }
+    .result-prize {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .result-banner.saved .result-prize { color: var(--green); }
+    .auto-saved-tag {
+      display: none;
+      margin-top: 8px;
+      font-size: 0.72rem;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: var(--green-bg);
+      border: 1px solid var(--green-bd);
+      color: var(--green);
+      letter-spacing: 0.05em;
+    }
+    .result-banner.saved .auto-saved-tag { display: inline-block; }
+
+    /* ── NEXT BTN ── */
+    .btn-next {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+      height: 46px;
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-next.visible { display: block; }
+    .btn-next:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── HISTORY ── */
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .log-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    .log-header {
+      display: grid;
+      grid-template-columns: 28px 1fr 1fr 1.2fr 1fr;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .log-header span {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .log-list { max-height: 280px; overflow-y: auto; }
+    .log-list::-webkit-scrollbar { width: 4px; }
+    .log-list::-webkit-scrollbar-track { background: transparent; }
+    .log-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+    .log-item {
+      display: grid;
+      grid-template-columns: 28px 1fr 1fr 1.2fr 1fr;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background 0.15s;
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-item:hover { background: var(--surface2); }
+    .log-item span { font-size: 0.82rem; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .log-num { color: var(--muted) !important; font-size: 0.72rem !important; }
+    .prize-tag {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      font-weight: 600;
+    }
+    .log-empty {
+      padding: 2.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted2);
+    }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat .num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .stat .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      letter-spacing: 0.05em;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+      .log-header,
+      .log-item { grid-template-columns: 24px 1fr 1fr; }
+      .log-header span:nth-child(4),
+      .log-header span:nth-child(5),
+      .log-item span:nth-child(4),
+      .log-item span:nth-child(5) { display: none; }
+      .confirmed-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats .stat:last-child { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Roleta de <span>Premiações</span></h1>
+  <p>Comercial 10X — Equipe de Vendas</p>
+</div>
+
+<div class="container">
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="step1"><div class="dot" id="dot1">1</div><span class="lbl">Dados</span></div>
+    <div class="step-line"></div>
+    <div class="step" id="step2"><div class="dot" id="dot2">2</div><span class="lbl">Girar</span></div>
+    <div class="step-line"></div>
+    <div class="step" id="step3"><div class="dot" id="dot3">3</div><span class="lbl">Salvo</span></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card" id="form-card">
+    <div class="card-label">Dados da venda</div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Nome do vendedor</label>
+        <input type="text" id="f-vendedor" placeholder="Ex: João Silva" autocomplete="off" />
+      </div>
+      <div class="field full">
+        <label>Nome do cliente</label>
+        <input type="text" id="f-cliente" placeholder="Ex: Maria Souza" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Produto vendido</label>
+        <input type="text" id="f-produto" placeholder="Ex: Mentoria Dex" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Valor recebido</label>
+        <input type="text" id="f-valor" placeholder="Ex: R$ 3.500" autocomplete="off" />
+      </div>
+    </div>
+    <button class="btn-primary" id="confirm-btn">Confirmar e liberar roleta →</button>
+  </div>
+
+  <!-- CONFIRMED -->
+  <div class="confirmed-card" id="confirmed-card">
+    <div class="ctitle">✓ Venda confirmada — pronto para girar</div>
+    <div class="confirmed-grid" id="confirmed-info"></div>
+  </div>
+
+  <!-- WHEEL -->
+  <div class="wheel-area">
+    <div class="wheel-wrap">
+      <svg class="pointer-svg" width="26" height="34" viewBox="0 0 26 34">
+        <polygon points="13,2 24,32 13,26 2,32" fill="#e05252" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <canvas id="roulette-canvas" width="500" height="500"></canvas>
+      <button class="center-btn" id="spin-btn" disabled>GIRAR</button>
+    </div>
+    <div class="result-banner" id="result-banner">
+      <div class="result-lbl" id="result-lbl">Aguardando sorteio</div>
+      <div class="result-prize" id="result-prize">—</div>
+      <span class="auto-saved-tag">✓ Salvo automaticamente</span>
+    </div>
+    <button class="btn-next" id="next-btn">→ Próximo vendedor</button>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section-title">Histórico de sorteios</div>
+  <div class="log-wrap">
+    <div class="log-header">
+      <span>#</span>
+      <span>Vendedor</span>
+      <span>Cliente</span>
+      <span>Produto · Valor</span>
+      <span>Prêmio</span>
+    </div>
+    <div class="log-list" id="log-list">
+      <div class="log-empty" id="log-empty">Nenhum resultado registrado ainda.</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">Sorteios</div></div>
+    <div class="stat"><div class="num" id="stat-vendors">0</div><div class="lbl">Vendedores</div></div>
+    <div class="stat"><div class="num" id="stat-top">—</div><div class="lbl">Mais premiado</div></div>
+  </div>
+
+</div>
+
+<footer>Comercial 10X · Roleta de Premiações · Uso interno</footer>
+
+<script>
+// ─────────────────────────────────────────────
+//  PRÊMIOS
+//  Ordem na roda: iFood 50 → Vale Jantar 200 → PIX 50 (conforme solicitado)
+//  weight 1 = todos iguais (simetria perfeita)
+// ─────────────────────────────────────────────
+const PRIZE_COLORS = [
+  '#7C3AED','#059669','#D97706','#2563EB',
+  '#DC2626','#0891B2','#7C2D12','#BE185D',
+  '#1D4ED8','#047857'
+];
+
+// Índices dos prêmios "grandes" que nunca podem repetir consecutivamente
+const PREMIUM_LABELS = ['Comissão Dobrada SDR/CLOSER', 'Comissão +50% SDR/CLOSER'];
+
+let prizes = [
+  { label: 'Comissão\nDobrada\nSDR/CLOSER', weight: 1 },
+  { label: 'PIX\nR$ 30',                    weight: 1 },
+  { label: 'Comissão\n+50%\nSDR/CLOSER',   weight: 1 },
+  { label: 'iFood\nR$ 50',                  weight: 1 },
+  { label: 'Vale Jantar\nR$ 200',           weight: 1 },
+  { label: 'PIX\nR$ 50',                    weight: 1 },
+  { label: 'PIX\nR$ 100',                   weight: 1 },
+  { label: 'iFood\nR$ 100',                 weight: 1 },
+  { label: 'iFood\nR$ 150',                 weight: 1 },
+  { label: 'PIX\nR$ 30',                    weight: 1 },
+];
+
+// ─── ANTI-REPETIÇÃO ───────────────────────────
+// Guarda os últimos N prêmios sorteados para evitar repetição
+const HISTORY_MEMORY = 3;   // nunca repete o mesmo nos últimos 3 sorteios
+const PREMIUM_COOLDOWN = 5; // prêmios premium (comissão) nunca repetem nos últimos 5
+
+let recentPrizes = []; // labels dos últimos sorteios
+
+function isPremium(label) {
+  return PREMIUM_LABELS.some(p => label.replace(/\n/g,' ').includes(p.split(' ')[0]) && label.includes('SDR'));
+}
+
+function pickPrize(segments) {
+  // Calcula pesos ajustados com penalidade por recência
+  const adjusted = segments.map(seg => {
+    const flatLabel = seg.label.replace(/\n/g, ' ');
+    let w = seg.weight;
+
+    // Penalidade por repetição recente
+    const lastIdx = recentPrizes.lastIndexOf(flatLabel);
+    if (lastIdx !== -1) {
+      const distancia = recentPrizes.length - lastIdx;
+      if (distancia <= HISTORY_MEMORY) w = 0; // bloqueia
+    }
+
+    // Penalidade premium
+    if (isPremium(seg.label)) {
+      const premiumRecent = recentPrizes.slice(-PREMIUM_COOLDOWN)
+        .some(r => isPremium({ label: r.replace(/ /g,'\n') } .label || r));
+      // verifica se QUALQUER premium apareceu recentemente
+      const anyPremiumRecent = recentPrizes.slice(-PREMIUM_COOLDOWN)
+        .some(r => PREMIUM_LABELS.some(p => r.includes(p.split(' ')[0]) && r.includes('SDR')));
+      if (anyPremiumRecent) w = 0;
+    }
+
+    return { ...seg, adjustedWeight: Math.max(w, 0) };
+  });
+
+  const totalAdj = adjusted.reduce((s, a) => s + a.adjustedWeight, 0);
+
+  // Se todos zerados (improvável), usa peso original
+  const pool = totalAdj > 0 ? adjusted : segments.map(s => ({ ...s, adjustedWeight: s.weight }));
+  const total = pool.reduce((s, a) => s + a.adjustedWeight, 0);
+
+  let rand = Math.random() * total;
+  for (const seg of pool) {
+    rand -= seg.adjustedWeight;
+    if (rand <= 0) return seg;
+  }
+  return pool[pool.length - 1];
+}
+
+// ─── ESTADO ───────────────────────────────────
+let log = [];
+try { log = JSON.parse(localStorage.getItem('c10x_roulette') || '[]'); } catch(e) {}
+// Carrega histórico recente do localStorage para o sistema anti-repetição
+try {
+  const saved = JSON.parse(localStorage.getItem('c10x_recent') || '[]');
+  recentPrizes = saved;
+} catch(e) {}
+
+let spinning = false;
+let currentAngle = 0;
+let saleData = null;
+let alreadySpun = false;
+
+// ─── CANVAS ───────────────────────────────────
+const SIZE = 500;
+const CX = SIZE/2, CY = SIZE/2, R = SIZE/2 - 6;
+const canvas = document.getElementById('roulette-canvas');
+const ctx = canvas.getContext('2d');
+
+function getSegments() {
+  const total = prizes.reduce((s,p) => s + p.weight, 0);
+  let start = 0;
+  return prizes.map((p, i) => {
+    const angle = (p.weight / total) * 2 * Math.PI;
+    const seg = { ...p, startAngle: start, endAngle: start + angle, color: PRIZE_COLORS[i % PRIZE_COLORS.length] };
+    start += angle;
+    return seg;
+  });
+}
+
+function drawWheel(rotation) {
+  ctx.clearRect(0, 0, SIZE, SIZE);
+  const segs = getSegments();
+
+  // Sombra externa
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 24;
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, 2*Math.PI);
+  ctx.fillStyle = '#0d121c';
+  ctx.fill();
+  ctx.restore();
+
+  // Fatias
+  segs.forEach(seg => {
+    const sa = seg.startAngle + rotation - Math.PI/2;
+    const ea = seg.endAngle   + rotation - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.arc(CX, CY, R, sa, ea);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Texto
+    const mid = (seg.startAngle + seg.endAngle)/2 + rotation - Math.PI/2;
+    const textR = R * 0.62;
+    const tx = CX + textR * Math.cos(mid);
+    const ty = CY + textR * Math.sin(mid);
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.rotate(mid + Math.PI/2);
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const lines = seg.label.split('\n');
+    const fs = lines.length >= 3 ? 11 : 13;
+    ctx.font = `700 ${fs}px 'Montserrat', sans-serif`;
+    const lh = fs + 4;
+    lines.forEach((line, li) => {
+      ctx.fillText(line, 0, (li - (lines.length-1)/2) * lh);
+    });
+    ctx.restore();
+  });
+
+  // Anel externo dourado
+  ctx.beginPath();
+  ctx.arc(CX, CY, R + 2, 0, 2*Math.PI);
+  ctx.strokeStyle = 'rgba(204,185,148,0.5)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Centro
+  ctx.beginPath();
+  ctx.arc(CX, CY, 46, 0, 2*Math.PI);
+  ctx.fillStyle = '#0d121c';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// ─── SPIN ─────────────────────────────────────
+const spinBtn = document.getElementById('spin-btn');
+const resultBanner = document.getElementById('result-banner');
+const resultLbl = document.getElementById('result-lbl');
+const resultPrize = document.getElementById('result-prize');
+const nextBtn = document.getElementById('next-btn');
+
+spinBtn.onclick = () => {
+  if (spinning || alreadySpun || !saleData) return;
+  spinning = true;
+  alreadySpun = true; // TRAVA IMEDIATA — não gira mais essa rodada
+  spinBtn.disabled = true;
+  spinBtn.classList.add('spinning');
+  resultLbl.textContent = 'Sorteando...';
+  resultPrize.textContent = '...';
+
+  const segs = getSegments();
+  const chosen = pickPrize(segs);
+
+  const targetMid = (chosen.startAngle + chosen.endAngle) / 2;
+  const extraSpins = (7 + Math.floor(Math.random()*5)) * 2 * Math.PI;
+  const norm = currentAngle % (2*Math.PI);
+  const diff = ((-norm - targetMid) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
+  const targetAngle = currentAngle + extraSpins + diff;
+  const start = currentAngle;
+  const duration = 5000 + Math.random()*1500;
+  const t0 = performance.now();
+
+  const ease = t => 1 - Math.pow(1-t, 4);
+
+  (function frame(now) {
+    const t = Math.min((now - t0) / duration, 1);
+    currentAngle = start + (targetAngle - start) * ease(t);
+    drawWheel(currentAngle);
+    if (t < 1) { requestAnimationFrame(frame); return; }
+
+    // ── RESULTADO ──
+    spinning = false;
+    spinBtn.classList.remove('spinning');
+    const prize = chosen.label.replace(/\n/g, ' ');
+    resultPrize.textContent = '🎉 ' + prize;
+    resultBanner.classList.add('saved');
+    resultLbl.textContent = 'Prêmio sorteado';
+    nextBtn.classList.add('visible');
+    setStep(3);
+
+    // Atualiza histórico de recência
+    recentPrizes.push(prize);
+    if (recentPrizes.length > 10) recentPrizes.shift();
+    try { localStorage.setItem('c10x_recent', JSON.stringify(recentPrizes)); } catch(e) {}
+
+    // SALVA AUTOMATICAMENTE
+    const now2 = new Date();
+    log.unshift({
+      vendedor: saleData.vendedor,
+      cliente:  saleData.cliente,
+      produto:  saleData.produto,
+      valor:    saleData.valor,
+      prize,
+      date: now2.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit' }),
+      ts: now2.getTime()
+    });
+    saveLog();
+    renderLog();
+  })(t0);
+};
+
+// ─── FORM ─────────────────────────────────────
+const formCard      = document.getElementById('form-card');
+const confirmedCard = document.getElementById('confirmed-card');
+const confirmedInfo = document.getElementById('confirmed-info');
+
+document.getElementById('confirm-btn').onclick = confirmSale;
+['f-vendedor','f-cliente','f-produto','f-valor'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') confirmSale(); });
+});
+
+function confirmSale() {
+  const v = id => document.getElementById(id).value.trim();
+  const vendedor = v('f-vendedor');
+  const cliente  = v('f-cliente');
+  const produto  = v('f-produto');
+  const valor    = v('f-valor');
+  if (!vendedor) { document.getElementById('f-vendedor').focus(); return; }
+  if (!cliente)  { document.getElementById('f-cliente').focus(); return; }
+  if (!produto)  { document.getElementById('f-produto').focus(); return; }
+  if (!valor)    { document.getElementById('f-valor').focus(); return; }
+
+  saleData = { vendedor, cliente, produto, valor };
+  alreadySpun = false;
+
+  confirmedInfo.innerHTML = `
+    <div class="ci"><span class="lbl">Vendedor</span>${vendedor}</div>
+    <div class="ci"><span class="lbl">Cliente</span>${cliente}</div>
+    <div class="ci"><span class="lbl">Produto</span>${produto}</div>
+    <div class="ci"><span class="lbl">Valor</span>${valor}</div>`;
+
+  formCard.style.display = 'none';
+  confirmedCard.style.display = 'block';
+  spinBtn.disabled = false;
+  resultBanner.className = 'result-banner';
+  resultLbl.textContent = 'Aguardando sorteio';
+  resultPrize.textContent = '—';
+  nextBtn.classList.remove('visible');
+  setStep(2);
+}
+
+nextBtn.onclick = () => {
+  saleData = null;
+  alreadySpun = false;
+  confirmedCard.style.display = 'none';
+  formCard.style.display = 'block';
+  ['f-vendedor','f-cliente','f-produto','f-valor'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  spinBtn.disabled = true;
+  resultBanner.className = 'result-banner';
+  resultLbl.textContent = 'Aguardando sorteio';
+  resultPrize.textContent = '—';
+  nextBtn.classList.remove('visible');
+  setStep(1);
+  document.getElementById('f-vendedor').focus();
+};
+
+// ─── STEPS ────────────────────────────────────
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step'+i);
+    const dot = document.getElementById('dot'+i);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    dot.textContent = i < n ? '✓' : String(i);
+  });
+}
+
+// ─── LOG ──────────────────────────────────────
+function saveLog() {
+  try { localStorage.setItem('c10x_roulette', JSON.stringify(log)); } catch(e) {}
+}
+
+function renderLog() {
+  const list = document.getElementById('log-list');
+  list.querySelectorAll('.log-item').forEach(e => e.remove());
+  const empty = document.getElementById('log-empty');
+  empty.style.display = log.length ? 'none' : 'block';
+
+  log.forEach((entry, i) => {
+    const div = document.createElement('div');
+    div.className = 'log-item';
+    const pi = prizes.findIndex(p => p.label.replace(/\n/g,' ') === entry.prize);
+    const color = PRIZE_COLORS[(pi >= 0 ? pi : i) % PRIZE_COLORS.length];
+    const prodVal = `${entry.produto} · ${entry.valor}`;
+    div.innerHTML = `
+      <span class="log-num">${log.length - i}</span>
+      <span title="${entry.vendedor}">${entry.vendedor}</span>
+      <span title="${entry.cliente}">${entry.cliente}</span>
+      <span title="${prodVal}" style="color:rgba(240,239,232,0.5);font-size:0.78rem">${prodVal}</span>
+      <span><span class="prize-tag" style="background:${color}22;color:${color};border:1px solid ${color}44" title="${entry.prize}">${entry.prize}</span></span>`;
+    list.appendChild(div);
+  });
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = log.length;
+  document.getElementById('stat-vendors').textContent = [...new Set(log.map(e => e.vendedor))].length;
+  if (!log.length) { document.getElementById('stat-top').textContent = '—'; return; }
+  const count = {};
+  log.forEach(e => { count[e.vendedor] = (count[e.vendedor]||0)+1; });
+  const top = Object.entries(count).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('stat-top').textContent = top[0].split(' ')[0];
+}
+
+
+// ─── INIT ─────────────────────────────────────
+drawWheel(0);
+renderLog();
+</script>
+</body>
+</html>
